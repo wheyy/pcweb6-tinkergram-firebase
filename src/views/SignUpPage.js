@@ -17,8 +17,8 @@ export default function SignUpPage() {
   useEffect(() => {
     if (loading) return;
     if (user) {
+      alert("You are already logged in"); 
       navigate("/");
-      return alert("You are already logged in"); 
     }
   });
 

@@ -1,22 +1,28 @@
 import React, { useEffect, useState } from "react";
-import { Button, Container, Form, Nav, Navbar } from "react-bootstrap";
+import { Button, Container, Form, Image } from "react-bootstrap";
 import { addDoc, collection } from "firebase/firestore";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useNavigate } from "react-router-dom" ;
-import { auth, db } from "../firebase";
-import { signOut } from "firebase/auth";
+import { auth, db, storage } from "../firebase";
 import SiteNav from "../templates/SiteNav";
-
+import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 
 
 export default function PostPageAdd() {
   const [user,loading] = useAuthState(auth);
   const [caption, setCaption] = useState("");
   const [image, setImage] = useState("");
+  const [previewImage, setPreviewImage] = useState(
+    "https://www.svgrepo.com/show/508699/landscape-placeholder.svg"
+  );
+
   const navigate = useNavigate();
 
   async function addPost() {
-    await addDoc(collection(db,"posts"), {caption, image});
+    const imageReference = ref(storage, `images/${image.name}`);
+    const response = await uploadBytes(imageReference, image);
+    const imageUrl = await getDownloadURL(response.ref);
+    await addDoc(collection(db,"posts"), {caption, image: imageUrl});
     navigate("/");
   }
 
@@ -41,18 +47,31 @@ export default function PostPageAdd() {
             />
           </Form.Group>
 
+          
           <Form.Group className="mb-3" controlId="image">
-            <Form.Label>Image URL</Form.Label>
+            <Form.Label>Image</Form.Label>
             <Form.Control
-              type="text"
-              placeholder="https://zca.sg/img/1"
-              value={image}
-              onChange={(text) => setImage(text.target.value)}
+              type="file"
+              onChange={(e) => {
+                const imageFile = e.target.files[0];
+                const previewImage = URL.createObjectURL(imageFile);
+                setImage(imageFile);
+                setPreviewImage(previewImage);
+              }}
             />
             <Form.Text className="text-muted">
-              Make sure the url has a image type at the end: jpg, jpeg, png.
+              Make sure the file has a image type at the end: jpg, jpeg, png.
             </Form.Text>
           </Form.Group>
+          <Image
+            src={previewImage}
+            style={{
+              objectFit: "cover",
+              width: "10rem",
+              height: "10rem",
+            }}
+          /> <br/><br/>
+
           <Button variant="primary" onClick={async (e) => addPost()}>
             Submit
           </Button>
