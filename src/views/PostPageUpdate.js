@@ -5,7 +5,7 @@ import { useAuthState } from "react-firebase-hooks/auth";
 import { auth,db, storage } from "../firebase";
 import { getDoc, doc, updateDoc } from "firebase/firestore";
 import SiteNav from "../templates/SiteNav";
-import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import { getDownloadURL, ref, uploadBytes, deleteObject } from "firebase/storage";
 
 
 export default function PostPageUpdate() {
@@ -13,17 +13,26 @@ export default function PostPageUpdate() {
   const id = params.id;
   const [caption, setCaption] = useState("");
   const [image, setImage] = useState("");
+  const [imageName, setImageName] = useState("");
   const [user, loading] = useAuthState(auth);
   const [previewImage, setPreviewImage] = useState(
     "https://www.svgrepo.com/show/508699/landscape-placeholder.svg"
   );
   const navigate = useNavigate();
 
-  async function updatePost() {
+  async function updatePost(id) {
+    const postDocument = await getDoc(doc(db,"posts", id));
+    const post = postDocument.data();
+    const deleteRef = ref(storage,`images/${post.imageName}`);
+    await deleteObject(deleteRef).then(() => {
+      // File deleted successfully
+    }).catch((error) => {
+      // Uh-oh, an error occurred!
+    });
     const imageReference = ref(storage, `images/${image.name}`);
     const response = await uploadBytes(imageReference, image);
     const imageUrl = await getDownloadURL(response.ref);
-    await updateDoc(doc(db, "posts", id), { caption, image: imageUrl });
+    await updateDoc(doc(db, "posts", id), { caption, image: imageUrl, imageName });
     navigate("/");
   }
 
@@ -69,6 +78,7 @@ export default function PostPageUpdate() {
                 const previewImage = URL.createObjectURL(imageFile);
                 setImage(imageFile);
                 setPreviewImage(previewImage);
+                setImageName(imageFile.name)
               }}
             />
             <Form.Text className="text-muted">
@@ -83,7 +93,7 @@ export default function PostPageUpdate() {
               height: "10rem",
             }}
           /><br/><br/>
-          <Button variant="primary" onClick={(e) => updatePost()}>
+          <Button variant="primary" onClick={(e) => updatePost(id)}>
             Submit
           </Button>
         </Form>

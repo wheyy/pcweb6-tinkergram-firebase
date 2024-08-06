@@ -12,6 +12,7 @@ export default function PostPageAdd() {
   const [user,loading] = useAuthState(auth);
   const [caption, setCaption] = useState("");
   const [image, setImage] = useState("");
+  const [imageName, setImageName] = useState("");
   const [previewImage, setPreviewImage] = useState(
     "https://www.svgrepo.com/show/508699/landscape-placeholder.svg"
   );
@@ -22,7 +23,7 @@ export default function PostPageAdd() {
     const imageReference = ref(storage, `images/${image.name}`);
     const response = await uploadBytes(imageReference, image);
     const imageUrl = await getDownloadURL(response.ref);
-    await addDoc(collection(db,"posts"), {caption, image: imageUrl});
+    await addDoc(collection(db,"posts"), {caption, image: imageUrl, imageName});
     navigate("/");
   }
 
@@ -57,6 +58,7 @@ export default function PostPageAdd() {
                 const previewImage = URL.createObjectURL(imageFile);
                 setImage(imageFile);
                 setPreviewImage(previewImage);
+                setImageName(imageFile.name)
               }}
             />
             <Form.Text className="text-muted">
