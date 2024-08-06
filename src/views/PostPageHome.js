@@ -3,6 +3,7 @@ import { Container, Image, Nav, Navbar, Row } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "../firebase";
+import SiteNav from "../templates/SiteNav";
 
 export default function PostPageHome() {
   const [posts, setPosts] = useState([]);
@@ -25,14 +26,7 @@ export default function PostPageHome() {
 
   return (
     <>
-      <Navbar variant="light" bg="light">
-        <Container>
-          <Navbar.Brand href="/">Tinkergram</Navbar.Brand>
-          <Nav>
-            <Nav.Link href="/add">New Post</Nav.Link>
-          </Nav>
-        </Container>
-      </Navbar>
+      <SiteNav/>
       <Container>
         <Row>
           <ImagesRow />

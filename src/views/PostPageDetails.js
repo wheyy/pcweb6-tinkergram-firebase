@@ -5,6 +5,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { auth,db } from "../firebase";
 import { signOut } from "firebase/auth";
 import { deleteDoc,doc,getDoc } from "firebase/firestore";
+import SiteNav from "../templates/SiteNav";
 
 
 export default function PostPageDetails() {
@@ -38,15 +39,7 @@ export default function PostPageDetails() {
 
   return (
     <>
-      <Navbar variant="light" bg="light">
-        <Container>
-          <Navbar.Brand href="/">Tinkergram</Navbar.Brand>
-          <Nav>
-            <Nav.Link href="/add">New Post</Nav.Link>
-            <Nav.Link onClick={(e) => signOut(auth)}>Sign Out</Nav.Link>
-          </Nav>
-        </Container>
-      </Navbar>
+      <SiteNav/>
       <Container>
         <Row style={{ marginTop: "2rem" }}>
           <Col md="6">

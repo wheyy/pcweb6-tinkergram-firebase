@@ -1,17 +1,30 @@
 import { createUserWithEmailAndPassword } from "firebase/auth";
-import React, { useState } from "react";
+import { useAuthState } from "react-firebase-hooks/auth";
+import React, { useState, useEffect } from "react";
 import { Button, Container, Form } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import { auth } from "../firebase";
+import SiteNav from "../templates/SiteNav";
 
 
 export default function SignUpPage() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [user,loading] = useAuthState(auth);
   const navigate= useNavigate();
 
+  useEffect(() => {
+    if (loading) return;
+    if (user) {
+      navigate("/");
+      return alert("You are already logged in"); 
+    }
+  });
+
   return (
+    <>
+    <SiteNav/>
     <Container>
       <h1 className="my-3">Sign up for an account</h1>
       <Form>
@@ -55,5 +68,6 @@ export default function SignUpPage() {
       </Form>
       <p>{error}</p>
     </Container>
+    </>
   );
 }
